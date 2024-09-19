@@ -13,7 +13,7 @@ public class PlayerMovement : MonoBehaviour
     private float horizontalMove;
     private Rigidbody2D rb; // chua cac thanh phan ve van toc, gia toc
     private bool isFaccingRight = true;
-    private bool isGrounded = false;
+    private bool isGrounded = false; 
     [SerializeField] Animator playerAnimator;
 
     // Start is called before the first frame update
@@ -38,31 +38,21 @@ public class PlayerMovement : MonoBehaviour
     {
         // Horizontal di chuyen theo chieu doc tra ve -1, 0 ,1
         horizontalMove = Input.GetAxisRaw("Horizontal"); 
-        rb.velocity = new Vector2(speed * horizontalMove, rb.velocity.y);
-        if(isFaccingRight && horizontalMove == -1)
+        if(!Input.GetKey(KeyCode.S))
         {
-            transform.localScale = new Vector3(transform.localScale.x * (-1), transform.localScale.y, transform.localScale.z);
-            isFaccingRight = false;
-        }
-        // quay player sang ben phai khi player dang nhin sang ben trai
-        if(!isFaccingRight && horizontalMove == 1)
-        {
-            transform.localScale = new Vector3(transform.localScale.x * (-1), transform.localScale.y, transform.localScale.z);
-            isFaccingRight = true;
+            rb.velocity = new Vector2(speed * horizontalMove, rb.velocity.y);
+            MoveHorizontal();
+            playerAnimator.SetFloat("speed",Math.Abs(horizontalMove));
         }
 
-        playerAnimator.SetFloat("speed",Math.Abs(horizontalMove));
+        Jump();
+        Crouch();
+        Attack();
 
-        if(Input.GetKey(KeyCode.Space) && isGrounded)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, jumpHeight);
-        } 
-
-        if(Input.GetKey(KeyCode.S)) playerAnimator.SetBool("isCrouch",true);
-        else playerAnimator.SetBool("isCrouch",false);
+        
     }
 
-    private void MoveRightLeft()
+    private void MoveHorizontal()
     {
         // quau player sang ben trai khi player dang nhin sang ben phai
         if(isFaccingRight && horizontalMove == -1)
@@ -83,17 +73,23 @@ public class PlayerMovement : MonoBehaviour
         if(Input.GetKey(KeyCode.Space) && isGrounded)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpHeight);
-            
-        }
+        } 
     }
 
     private void Crouch()
     {
-
-
+        if(Input.GetKey(KeyCode.S))
+        {
+            playerAnimator.SetBool("isCrouch",true);
+        }
+        else playerAnimator.SetBool("isCrouch",false);
     }
 
-
+    private void Attack()
+    {
+        if(Input.GetMouseButton(0)) playerAnimator.SetBool("isAttack",true);
+        else playerAnimator.SetBool("isAttack",false);
+    }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
